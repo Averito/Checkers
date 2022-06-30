@@ -22,27 +22,19 @@ export class CheckerModel implements Checker {
 	}
 
 	public canMove(target: CellModel): boolean {
+		const xAbs = Math.abs(target.x - this.x)
+		let y = target.y - this.y
+
 		if (this.team === 'white') {
-			const xAbs = Math.abs(target.x - this.x)
-			let y = target.y - this.y
-
 			if (y < 0) return false
-
-			y = Math.abs(y)
-
-			if (xAbs !== 1 || y !== 1) return false
-			if (xAbs === y) return true
 		} else {
-			const xAbs = Math.abs(target.x - this.x)
-			let y = target.y - this.y
-
 			if (y > 0) return false
-
-			y = Math.abs(y)
-
-			if (xAbs !== 1 || y !== 1) return false
-			if (xAbs === y) return true
 		}
+
+		y = Math.abs(y)
+
+		if (xAbs !== 1 || y !== 1) return false
+		if (xAbs === y) return true
 
 		return false
 	}
