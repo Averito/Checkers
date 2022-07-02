@@ -2,6 +2,7 @@ import { Cell } from '@/types/Cell'
 
 export type Team = 'black' | 'white'
 export type Hierarchy = 'queen' | 'soldier'
+export type Action = 'kill' | 'move'
 
 export interface Checker {
 	readonly id: number
@@ -11,5 +12,5 @@ export interface Checker {
 	rank: Hierarchy
 	selected: boolean
 
-	canMove(target: Cell): boolean
+	can(target: Cell, action: Action): boolean
 }

@@ -1,7 +1,7 @@
-import { Checker, Team, Hierarchy } from '@/types/Checker'
+import { Checker, Team, Hierarchy, Action } from '@/types/Checker'
 import { CellModel } from '@/models/Cell'
 
-export type CheckerOptions = Omit<Checker, 'canMove' | 'select' | 'selected'>
+export type CheckerOptions = Omit<Checker, 'can' | 'select' | 'selected'>
 
 export class CheckerModel implements Checker {
 	public readonly id: number
@@ -21,9 +21,9 @@ export class CheckerModel implements Checker {
 		this.y = y
 	}
 
-	public canMove(target: CellModel): boolean {
+	public can(target: CellModel, action: Action): boolean {
 		const xAbs = Math.abs(target.x - this.x)
-		let y = target.y - this.y
+		const y = target.y - this.y
 
 		if (this.team === 'white') {
 			if (y < 0) return false
@@ -31,10 +31,15 @@ export class CheckerModel implements Checker {
 			if (y > 0) return false
 		}
 
-		y = Math.abs(y)
+		const yAbs = Math.abs(y)
 
-		if (xAbs !== 1 || y !== 1) return false
-		if (xAbs === y) return true
+		if (action === 'move') {
+			if (xAbs === 1 && yAbs === 1 && !target.checker) return true
+		} else {
+			const differenceTeam = this.team !== target.checker?.team
+			if (xAbs === 1 && yAbs === 1 && target.checker && differenceTeam)
+				return true
+		}
 
 		return false
 	}

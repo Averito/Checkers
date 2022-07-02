@@ -1,4 +1,5 @@
-import { Checker, Team } from '@/types/Checker'
+import { Checker } from '@/types/Checker'
+import { CellModel } from '@/models/Cell'
 
 export interface Cell {
 	readonly id: number
@@ -7,6 +8,13 @@ export interface Cell {
 	checker?: Checker
 
 	findPlaces(): Cell[]
-	moveTo(allowedCell: Cell): void
+	moveTo(
+		allowedCells: Cell[],
+		targetAllowedCell: Cell
+	): { newAllowedCells: Cell[]; selectedCell: Cell } | undefined
 	select(): Cell | undefined
 }
+
+export type CellMoveToReturn =
+	| { newAllowedCells: CellModel[]; selectedCell: CellModel }
+	| undefined

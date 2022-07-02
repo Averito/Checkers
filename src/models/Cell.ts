@@ -1,4 +1,4 @@
-import { Cell } from '@/types/Cell'
+import { Cell, CellMoveToReturn } from '@/types/Cell'
 import { CheckerModel } from '@/models/Checker'
 import { BoardModel } from '@/models/Board'
 
@@ -31,26 +31,69 @@ export class CellModel implements Cell {
 		for (const idx in this.board.cells) {
 			const target = this.board.cells[idx]
 
-			if (this.checker?.canMove(target)) {
+			if (this.checker?.can(target, 'move')) {
 				cells = [...cells, target]
+			} else if (this.checker?.can(target, 'kill')) {
+				console.log('target', target)
+				const nextCell = this.board.cells.find(cell =>
+					this.findCellAfterKill(cell, target)
+				)
+				if (nextCell) cells = [...cells, target, nextCell]
 			}
 		}
 
 		return cells
 	}
 
-	public moveTo(allowedCell: CellModel): void {
+	public moveTo(
+		allowedCells: CellModel[],
+		targetAllowedCell: CellModel
+	): CellMoveToReturn {
 		if (this.checker?.team !== this.board.queue) return
-		if (!this.checker?.canMove(allowedCell)) return
+		if (!this.isHorizontal(targetAllowedCell)) return
 
-		// todo: Проверка на убийство
+		let newAllowedCells: CellModel[] = []
+		const killedChecker = this.killed(allowedCells, targetAllowedCell)
+
+		this.checker.x = targetAllowedCell.x
+		this.checker.y = targetAllowedCell.y
+
+		if (killedChecker) {
+			if (killedChecker.checker?.team === 'white') {
+				this.board.whiteDecrement()
+			} else {
+				this.board.blackDecrement()
+			}
+			killedChecker.checker = undefined
+
+			for (const currentIdx in this.board.cells) {
+				const currentCell = this.board.cells[currentIdx]
+
+				if (this.checker.can(currentCell, 'kill')) {
+					const nextCell = this.board.cells.find(cell =>
+						this.findCellAfterKill(cell, currentCell)
+					)
+
+					if (nextCell && currentCell.isHorizontal(nextCell)) {
+						newAllowedCells = [...newAllowedCells, currentCell, nextCell]
+						this.board.rageMode = true
+					}
+				}
+			}
+		}
+		const newAllowedCellsMapped = newAllowedCells.map(
+			newAllowCell => newAllowCell.checker
+		)
+		if (newAllowedCellsMapped.length <= 0) this.board.rageMode = false
+
 		this.board.switchQueue()
-
-		this.checker.x = allowedCell.x
-		this.checker.y = allowedCell.y
-		allowedCell.checker = this.checker
-
+		targetAllowedCell.checker = this.checker
 		this.checker = undefined
+
+		return {
+			newAllowedCells,
+			selectedCell: targetAllowedCell
+		}
 	}
 
 	public select(): CellModel | undefined {
@@ -63,5 +106,60 @@ export class CellModel implements Cell {
 		this.checker.selected = true
 
 		return this
+	}
+
+	private findCellAfterKill(nestedNextCell: CellModel, currentCell: CellModel) {
+		if (!this.checker) return
+
+		const xAbs = Math.abs(nestedNextCell.x - this.checker.x)
+		const y = nestedNextCell.y - this.checker.y
+
+		if (this.checker?.team === 'white') {
+			if (y < 0) return false
+		} else {
+			if (y > 0) return false
+		}
+
+		const yAbs = Math.abs(y)
+
+		const nestedNextCellHorizontal = currentCell.isHorizontal(nestedNextCell)
+		if (
+			yAbs === 2 &&
+			xAbs === 2 &&
+			!nestedNextCell.checker &&
+			nestedNextCellHorizontal
+		)
+			return true
+
+		return false
+	}
+
+	private isHorizontal(target: CellModel) {
+		if (!this.checker) return
+
+		const xAbs = Math.abs(target.x - this.checker.x)
+		const y = target.y - this.checker.y
+
+		const yAbs = Math.abs(y)
+
+		if (yAbs > 2 || xAbs > 2) return false
+		if (yAbs === xAbs) return true
+
+		return false
+	}
+
+	private killed(
+		allowedCells: CellModel[],
+		targetAllowedCell: CellModel
+	): CellModel | undefined {
+		let killedChecker: CellModel | undefined
+
+		allowedCells.forEach(allowedCell => {
+			if (allowedCell.checker && allowedCell.isHorizontal(targetAllowedCell)) {
+				killedChecker = allowedCell
+			}
+		})
+
+		return killedChecker
 	}
 }

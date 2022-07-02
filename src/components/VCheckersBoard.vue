@@ -37,6 +37,8 @@ const selectedCell = ref<CellModel>({} as CellModel)
 const boardReset = () => {
 	const newBoard = new BoardModel()
 	board.value = newBoard
+	allowedCells.value = []
+	selectedCell.value = {} as CellModel
 }
 
 const onSelectChecker = (newSelectedCell: CellModel) => {

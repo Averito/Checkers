@@ -46,7 +46,7 @@ const emit = defineEmits<{
 const onSelectChecker = (cell: CellModel) => {
 	const allowedCells = cell.findPlaces()
 	const newSelectedCell = cell.select()
-	console.log(allowedCells)
+	console.log('allowedCells', allowedCells)
 
 	emit('select-checker', newSelectedCell ?? ({} as CellModel))
 	emit('select', allowedCells)
@@ -55,8 +55,15 @@ const onSelectChecker = (cell: CellModel) => {
 const onSelectCell = () => {
 	if (!allowedCell.value) return
 
-	props.selectedCell?.moveTo(props.cell)
-	emit('select', [])
+	const newAllowedCellsAndSelectedCell = props.selectedCell?.moveTo(
+		props.allowedCells,
+		props.cell
+	)
+	const newAllowedCells = newAllowedCellsAndSelectedCell?.newAllowedCells
+	const selectedCell = newAllowedCellsAndSelectedCell?.selectedCell
+
+	emit('select', newAllowedCells ?? [])
+	emit('select-checker', selectedCell ?? ({} as CellModel))
 }
 
 const allowedCell = computed<boolean>(
