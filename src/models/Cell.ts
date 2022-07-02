@@ -34,10 +34,10 @@ export class CellModel implements Cell {
 			if (this.checker?.can(target, 'move')) {
 				cells = [...cells, target]
 			} else if (this.checker?.can(target, 'kill')) {
-				console.log('target', target)
 				const nextCell = this.board.cells.find(cell =>
 					this.findCellAfterKill(cell, target)
 				)
+
 				if (nextCell) cells = [...cells, target, nextCell]
 			}
 		}
@@ -53,32 +53,29 @@ export class CellModel implements Cell {
 		if (!this.isHorizontal(targetAllowedCell)) return
 
 		let newAllowedCells: CellModel[] = []
-		const killedChecker = this.killed(allowedCells, targetAllowedCell)
+		const killedChecker = this.findKilledChecker(
+			allowedCells,
+			targetAllowedCell
+		)
 
 		this.checker.x = targetAllowedCell.x
 		this.checker.y = targetAllowedCell.y
 
 		if (killedChecker) {
-			if (killedChecker.checker?.team === 'white') {
-				this.board.whiteDecrement()
-			} else {
-				this.board.blackDecrement()
-			}
-			killedChecker.checker = undefined
+			this.kill(killedChecker)
 
 			for (const currentIdx in this.board.cells) {
 				const currentCell = this.board.cells[currentIdx]
 
-				if (this.checker.can(currentCell, 'kill')) {
-					const nextCell = this.board.cells.find(cell =>
-						this.findCellAfterKill(cell, currentCell)
-					)
+				if (!this.checker.can(currentCell, 'kill')) continue
+				const nextCell = this.board.cells.find(cell =>
+					this.findCellAfterKill(cell, currentCell)
+				)
 
-					if (nextCell && currentCell.isHorizontal(nextCell)) {
-						newAllowedCells = [...newAllowedCells, currentCell, nextCell]
-						this.board.rageMode = true
-					}
-				}
+				if (!(nextCell && currentCell.isHorizontal(nextCell))) continue
+
+				newAllowedCells = [...newAllowedCells, currentCell, nextCell]
+				this.board.rageMode = true
 			}
 		}
 		const newAllowedCellsMapped = newAllowedCells.map(
@@ -97,7 +94,7 @@ export class CellModel implements Cell {
 	}
 
 	public select(): CellModel | undefined {
-		if (!this.checker) return
+		if (!this.checker || this.board.rageMode) return
 		if (this.checker.team !== this.board.queue) return
 
 		this.board.cells.forEach(cell => {
@@ -123,13 +120,12 @@ export class CellModel implements Cell {
 		const yAbs = Math.abs(y)
 
 		const nestedNextCellHorizontal = currentCell.isHorizontal(nestedNextCell)
-		if (
+		const isNextCell =
 			yAbs === 2 &&
 			xAbs === 2 &&
 			!nestedNextCell.checker &&
 			nestedNextCellHorizontal
-		)
-			return true
+		if (isNextCell) return true
 
 		return false
 	}
@@ -148,7 +144,7 @@ export class CellModel implements Cell {
 		return false
 	}
 
-	private killed(
+	private findKilledChecker(
 		allowedCells: CellModel[],
 		targetAllowedCell: CellModel
 	): CellModel | undefined {
@@ -161,5 +157,14 @@ export class CellModel implements Cell {
 		})
 
 		return killedChecker
+	}
+
+	private kill(killedChecker: CellModel) {
+		if (killedChecker.checker?.team === 'white') {
+			this.board.whiteDecrement()
+		} else {
+			this.board.blackDecrement()
+		}
+		killedChecker.checker = undefined
 	}
 }

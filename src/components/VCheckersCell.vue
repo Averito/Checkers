@@ -44,9 +44,10 @@ const emit = defineEmits<{
 }>()
 
 const onSelectChecker = (cell: CellModel) => {
-	const allowedCells = cell.findPlaces()
 	const newSelectedCell = cell.select()
-	console.log('allowedCells', allowedCells)
+	if (!newSelectedCell) return
+
+	const allowedCells = cell.findPlaces()
 
 	emit('select-checker', newSelectedCell ?? ({} as CellModel))
 	emit('select', allowedCells)
