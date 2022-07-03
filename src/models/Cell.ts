@@ -111,12 +111,6 @@ export class CellModel implements Cell {
 		const xAbs = Math.abs(nestedNextCell.x - this.checker.x)
 		const y = nestedNextCell.y - this.checker.y
 
-		if (this.checker?.team === 'white') {
-			if (y < 0) return false
-		} else {
-			if (y > 0) return false
-		}
-
 		const yAbs = Math.abs(y)
 
 		const nestedNextCellHorizontal = currentCell.isHorizontal(nestedNextCell)
