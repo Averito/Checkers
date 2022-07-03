@@ -109,9 +109,7 @@ export class CellModel implements Cell {
 		if (!this.checker) return
 
 		const xAbs = Math.abs(nestedNextCell.x - this.checker.x)
-		const y = nestedNextCell.y - this.checker.y
-
-		const yAbs = Math.abs(y)
+		const yAbs = Math.abs(nestedNextCell.y - this.checker.y)
 
 		const nestedNextCellHorizontal = currentCell.isHorizontal(nestedNextCell)
 		const isNextCell =
