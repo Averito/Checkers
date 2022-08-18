@@ -1,0 +1,60 @@
+.board {
+  display: grid;
+  grid-template-columns: repeat(8, 64px);
+  grid-template-rows: repeat(8, 64px);
+  border: 1px solid gray;
+
+  @media all and (max-width: 768px) {
+    grid-template-columns: repeat(8, 32px);
+    grid-template-rows: repeat(8, 32px);
+  }
+}
+
+.counter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+
+  > p {
+    font-size: 20px;
+    font-weight: 500;
+
+    @media all and (max-width: 768px) {
+      font-size: 14px;
+    }
+  }
+}
+
+.reset {
+  cursor: pointer;
+  background-color: rgb(102, 0, 255);
+  font-size: 20px;
+  padding: 6px 20px;
+  border-radius: 10px;
+  border: none;
+  color: white;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: rgb(78, 7, 184);
+  }
+
+  @media all and (max-width: 768px) {
+    font-size: 14px;
+  }
+}
+
+.queue {
+  display: flex;
+  justify-content: center;
+
+  > p {
+    font-size: 20px;
+    font-weight: 500;
+
+    @media all and (max-width: 768px) {
+      font-size: 14px;
+    }
+  }
+}

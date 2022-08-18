@@ -1,7 +1,7 @@
-import { CellModel } from '@/models/Cell'
-import { Board } from '@/types/Board'
-import { CheckerModel, CheckerOptions } from '@/models/Checker'
-import { Team } from '@/types/Checker'
+import { Board } from '@interfaces/Board'
+import { Team } from '@interfaces/Checker'
+import { CheckerModel, CheckerOptions } from './Checker'
+import { CellModel } from './Cell'
 
 export interface GenReturn {
 	cells: CellModel[]
@@ -31,37 +31,37 @@ export class BoardModel implements Board {
 		let blackCount = 0
 
 		for (let x = 0; x < this.boardSquare; x++) {
-			const xCoord = x % this.boardLength
-			const yCoord = Math.floor(x / this.boardLength)
+			const xCord = x % this.boardLength
+			const yCord = Math.floor(x / this.boardLength)
 			let checker: CheckerModel | undefined
 
-			const whiteTeam = yCoord >= 0 && yCoord <= 2
-			const blackTeam = yCoord >= 5 && yCoord <= 7
+			const whiteTeam = yCord >= 0 && yCord <= 2
+			const blackTeam = yCord >= 5 && yCord <= 7
 			const checkerSpawn = whiteTeam || blackTeam
 
 			if (checkerSpawn) {
 				const checkerOptions: CheckerOptions = {
 					id: x,
-					x: xCoord,
-					y: yCoord,
+					x: xCord,
+					y: yCord,
 					team: whiteTeam ? 'white' : 'black',
 					rank: 'soldier'
 				}
 
-				if (yCoord % 2 === 0) {
-					if (xCoord % 2 !== 0) {
+				if (yCord % 2 === 0) {
+					if (xCord % 2 !== 0) {
 						checker = new CheckerModel(checkerOptions)
 						whiteCount++
 					}
 				} else {
-					if (xCoord % 2 === 0) {
+					if (xCord % 2 === 0) {
 						checker = new CheckerModel(checkerOptions)
 						blackCount++
 					}
 				}
 			}
 
-			cells.push(new CellModel(x, xCoord, yCoord, this, checker))
+			cells.push(new CellModel(x, xCord, yCord, this, checker))
 		}
 
 		return { cells, whiteCount, blackCount }

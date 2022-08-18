@@ -1,6 +1,6 @@
-import { Cell, CellMoveToReturn } from '@/types/Cell'
-import { CheckerModel } from '@/models/Checker'
-import { BoardModel } from '@/models/Board'
+import { Cell, CellMoveToReturn } from '@interfaces/Cell'
+import { CheckerModel } from './Checker'
+import { BoardModel } from './Board'
 
 export class CellModel implements Cell {
 	public readonly id: number
@@ -34,6 +34,7 @@ export class CellModel implements Cell {
 			if (this.checker?.can(target, 'move')) {
 				cells = [...cells, target]
 			} else if (this.checker?.can(target, 'kill')) {
+
 				const nextCell = this.board.cells.find(cell =>
 					this.findCellAfterKill(cell, target)
 				)
@@ -49,6 +50,7 @@ export class CellModel implements Cell {
 		allowedCells: CellModel[],
 		targetAllowedCell: CellModel
 	): CellMoveToReturn {
+		if(!this.checker) return
 		if (this.checker?.team !== this.board.queue) return
 		if (!this.isHorizontal(targetAllowedCell)) return
 
@@ -117,9 +119,8 @@ export class CellModel implements Cell {
 			xAbs === 2 &&
 			!nestedNextCell.checker &&
 			nestedNextCellHorizontal
-		if (isNextCell) return true
 
-		return false
+		return !!isNextCell
 	}
 
 	private isHorizontal(target: CellModel) {
@@ -131,9 +132,7 @@ export class CellModel implements Cell {
 		const yAbs = Math.abs(y)
 
 		if (yAbs > 2 || xAbs > 2) return false
-		if (yAbs === xAbs) return true
-
-		return false
+		return yAbs === xAbs;
 	}
 
 	private findKilledChecker(

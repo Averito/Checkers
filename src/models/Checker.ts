@@ -1,5 +1,5 @@
-import { Checker, Team, Hierarchy, Action } from '@/types/Checker'
-import { CellModel } from '@/models/Cell'
+import { Checker, Team, Hierarchy, Action } from '@interfaces/Checker'
+import { CellModel } from './Cell'
 
 export type CheckerOptions = Omit<Checker, 'can' | 'select' | 'selected'>
 
