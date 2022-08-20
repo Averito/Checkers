@@ -1,77 +1,72 @@
-import { FC, MouseEventHandler, useMemo } from 'react'
+import {FC, MouseEventHandler, useMemo} from 'react'
 import classNames from 'classnames'
 
 import styles from './Cell.module.scss'
-import { CellModel } from '@models/Cell'
-import { Team } from '@interfaces/Checker'
-import { Checker } from '@components/Checkers/components/Checker'
+import {CellModel} from '@models/Cell'
+import {Checker} from '@components/Checkers/components/Checker'
 
 interface CellProps {
-	cell: CellModel
-	cellReverse: boolean
-	isOdd: boolean
-	isEven: boolean
-	queue: Team
-	allowedCells: CellModel[]
-	selectedCell: CellModel
-	selectCell: (newAllowedCells: CellModel[]) => void
-	selectChecker: (newSelectedCell: CellModel) => void
+    cell: CellModel
+    cellReverse: boolean
+    isOdd: boolean
+    isEven: boolean
+    allowedCells: CellModel[]
+    selectedCell: CellModel
+    selectCell: (newAllowedCells: CellModel[]) => void
+    selectChecker: (newSelectedCell: CellModel) => void
 }
 
 export const Cell: FC<CellProps> = ({
-	cell,
-	cellReverse,
-	selectedCell,
-	allowedCells,
-	queue,
-	selectCell,
-	selectChecker,
-	isOdd,
-	isEven
-}) => {
-	const allowedCell = useMemo<boolean>(() => allowedCells.some(allowedCell => allowedCell.id === cell.id) && !cell.checker, [cell, allowedCells])
+                                        cell,
+                                        cellReverse,
+                                        selectedCell,
+                                        allowedCells,
+                                        selectCell,
+                                        selectChecker,
+                                        isOdd,
+                                        isEven
+                                    }) => {
+    const allowedCell = useMemo<boolean>(() => allowedCells.some(allowedCell => allowedCell.id === cell.id) && !cell.checker, [cell, allowedCells])
 
-	const onSelectCell: MouseEventHandler<HTMLDivElement> = () => {
-		if (!allowedCell) return
+    const onSelectCell: MouseEventHandler<HTMLDivElement> = () => {
+        if (!allowedCell) return
 
-		const newAllowedCellsAndSelectedCell = selectedCell?.moveTo(
-			allowedCells,
-			cell
-		)
+        const newAllowedCellsAndSelectedCell = selectedCell?.moveTo(
+            allowedCells,
+            cell
+        )
 
-		const newAllowedCells = newAllowedCellsAndSelectedCell?.newAllowedCells
-		const newSelectedCell = newAllowedCellsAndSelectedCell?.selectedCell
+        const newAllowedCells = newAllowedCellsAndSelectedCell?.newAllowedCells
+        const newSelectedCell = newAllowedCellsAndSelectedCell?.selectedCell
 
-		selectCell(newAllowedCells ?? [])
-		selectChecker(newSelectedCell ?? ({} as CellModel))
-	}
+        selectCell(newAllowedCells ?? [])
+        selectChecker(newSelectedCell ?? ({} as CellModel))
+    }
 
-	const onSelectChecker: MouseEventHandler<HTMLDivElement> = () => {
-		const newSelectedCell = cell.select()
-		if (!newSelectedCell) return
+    const onSelectChecker: MouseEventHandler<HTMLDivElement> = () => {
+        const newSelectedCell = cell.select()
+        if (!newSelectedCell) return
 
-		const allowedCells = cell.findPlaces()
+        const allowedCells = cell.findPlaces()
 
-		selectChecker(newSelectedCell ?? ({} as CellModel))
-		selectCell(allowedCells)
-	}
+        selectChecker(newSelectedCell ?? ({} as CellModel))
+        selectCell(allowedCells)
+    }
 
-	const cursorPointer = useMemo<string>(() =>
-			selectedCell?.id && !cell?.checker?.id
-				? styles.cursorPointer
-				: styles.cursorDefault,
-		[selectedCell, cell])
+    const cursorPointer = selectedCell?.id && !cell?.checker?.id
+        ? styles.cursorPointer
+        : styles.cursorDefault
 
-	const evenCellBackground = useMemo<string>(() => isEven ? styles.backgroundBlack : styles.backgroundWhite, [cellReverse])
-	const oddCellBackground = useMemo<string>(() => isOdd ? styles.backgroundBlack : styles.backgroundWhite, [cellReverse])
+    const evenCellBackground = isEven ? styles.backgroundBlack : styles.backgroundWhite
+    const oddCellBackground = isOdd ? styles.backgroundBlack : styles.backgroundWhite
 
-	return (
-		<div className={classNames(styles.cell, cellReverse ? oddCellBackground : evenCellBackground, cursorPointer)}
-				 onClick={onSelectCell}>
-			{allowedCell && <span className={styles.allowed} />}
-			{cell?.checker && (
-				<Checker cell={cell} onClick={onSelectChecker} />
-			)}
-		</div>
-	)
+    return (
+        <div className={classNames(styles.cell, cellReverse ? oddCellBackground : evenCellBackground, cursorPointer)}
+             onClick={onSelectCell}>
+            {allowedCell && <span className={styles.allowed}/>}
+            {cell?.checker && (
+                <Checker cell={cell} onClick={onSelectChecker}/>
+            )}
+        </div>
+    )
 }
